@@ -10,21 +10,34 @@
     <Window.DataContext>
         <local:MainViewModel/>
     </Window.DataContext>
-    <ItemsControl ItemsSource="{Binding Figures}">
-        <ItemsControl.ItemsPanel>
-            <ItemsPanelTemplate>
-                <Canvas/>
-            </ItemsPanelTemplate>
-        </ItemsControl.ItemsPanel>
-        <ItemsControl.Resources>
-            <Style TargetType="ContentPresenter">
-                <Setter Property="Canvas.Left" Value="{Binding X}" />
-                <Setter Property="Canvas.Top" Value="{Binding Y}" />
-            </Style>
-            <DataTemplate DataType="{x:Type ll:FigureModel}">
-                <Ellipse 
-                    Height="{Binding Radius}" Width="{Binding Radius}" Fill="Black"/>
-            </DataTemplate>
-        </ItemsControl.Resources>
-    </ItemsControl>
+    <StackPanel>
+        <Button 
+            Width="100"
+            Height="30"
+            Margin="5"
+            BorderThickness="1"
+            Command="{Binding AddCircle}" Content="+"
+            />
+        <ItemsControl ItemsSource="{Binding CirclesList}">
+            <ItemsControl.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <Canvas/>
+                </ItemsPanelTemplate>
+            </ItemsControl.ItemsPanel>
+            <ItemsControl.Resources>
+                <Style TargetType="ContentPresenter">
+                    <Setter Property="Canvas.Left" Value="{Binding X}" />
+                    <Setter Property="Canvas.Top" Value="{Binding Y}" />
+                </Style>
+                <DataTemplate DataType="{x:Type ll:CircleModel}">
+                    <Ellipse 
+                        Height="{Binding Radius}" 
+                        Width="{Binding Radius}" 
+                        Fill="{Binding FillColor}"
+                        Stroke="{Binding BorderColor}"
+                        />
+                </DataTemplate>
+            </ItemsControl.Resources>
+        </ItemsControl>
+    </StackPanel>
 </Window>
