@@ -1,4 +1,5 @@
 ﻿using Circles.Commands;
+using Circles.Helpers;
 using Circles.Models;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
@@ -7,7 +8,7 @@ using System.Runtime.CompilerServices;
 using System.Windows.Input;
 using System.Windows.Media;
 
-namespace Circles;
+namespace Circles.ViewModels;
 
 internal class MainViewModel : INotifyPropertyChanged
 {
@@ -16,11 +17,12 @@ internal class MainViewModel : INotifyPropertyChanged
     private int _radius;
     private int _cornerPerTick;
     private int _additionalCorner;
-    private Random _r;
 
     private Point _startPoint;
 
     private ICommand _addCircle;
+
+    private ColorsHelper _colorsHelper;
 
     public MainViewModel()
     {
@@ -28,7 +30,7 @@ internal class MainViewModel : INotifyPropertyChanged
         _startPoint = new Point(250, 250);
         _radius = 100;
         _cornerPerTick = 5;
-        _r = new Random();
+        _colorsHelper = new ColorsHelper();
 
         TimerCallback tm = new TimerCallback(obj =>
         {
@@ -71,59 +73,36 @@ internal class MainViewModel : INotifyPropertyChanged
 
                 for (int i = 0; i < CirclesList.Count; i++)
                 {
-                    var newPoint = PositionCalculation(_startPoint, _radius, CirclesList.Count + 1, i + 1, _additionalCorner);
+                    var newPoint = PositionHelper.PositionCalculation(_startPoint, _radius, CirclesList.Count + 1, i + 1, _additionalCorner);
                     var pp = CirclesList[i];
-                    pp.X = newPoint.X - (_radius / 4);
-                    pp.Y = newPoint.Y - (_radius / 4);
+                    pp.X = newPoint.X - _radius / 4;
+                    pp.Y = newPoint.Y - _radius / 4;
                 }
 
-                var positionForNewCircle = PositionCalculation(_startPoint, _radius, CirclesList.Count + 1, CirclesList.Count + 1, _additionalCorner);
+                var positionForNewCircle = PositionHelper.PositionCalculation(_startPoint, _radius, CirclesList.Count + 1, CirclesList.Count + 1, _additionalCorner);
 
                 var newCircle = new CircleModel
                 {
-                    X = positionForNewCircle.X - (_radius / 4),
-                    Y = positionForNewCircle.Y - (_radius / 4),
+                    X = positionForNewCircle.X - _radius / 4,
+                    Y = positionForNewCircle.Y - _radius / 4,
                     Radius = _radius / 4,
-                    BorderColor = new SolidColorBrush(GetRandomColor()),
-                    FillColor = new SolidColorBrush(GetRandomColor()),
+                    BorderColor = new SolidColorBrush(_colorsHelper.GetRandomColor()),
+                    FillColor = new SolidColorBrush(_colorsHelper.GetRandomColor()),
                 };
                 CirclesList.Add(newCircle);
             }, m => CirclesList.Count < 10);
         }
     }
 
-    private System.Windows.Media.Color GetRandomColor()
-    {
-        return System.Windows.Media.Color.FromArgb(100, (byte)_r.Next(255), (byte)_r.Next(255), (byte)_r.Next(255));
-    }
-
     private void UpdatePosition()
     {
         for (int i = 0; i < CirclesList.Count; i++)
         {
-            var newPoint = PositionCalculation(_startPoint, _radius, CirclesList.Count, i+1, _additionalCorner);
+            var newPoint = PositionHelper.PositionCalculation(_startPoint, _radius, CirclesList.Count, i + 1, _additionalCorner);
             var pp = CirclesList[i];
-            pp.X = newPoint.X - (_radius / 4);
-            pp.Y = newPoint.Y - (_radius / 4);
+            pp.X = newPoint.X - _radius / 4;
+            pp.Y = newPoint.Y - _radius / 4;
         }
-    }
-
-    private Point PositionCalculation(Point startPoint, int radius, int circleCount, int circleNumber, int additionalCorner = 0)
-    {
-        if (circleCount <= 1)
-        {
-            return new Point(startPoint.X, startPoint.Y);
-        }
-
-        double corner = 360.0 / (circleCount <= 0 ? 1 : circleCount);
-        double angle = Math.PI * (circleNumber * corner + additionalCorner) / 180.0;
-
-        (double sinAngle, double cosAngle) = Math.SinCos(angle);
-
-        var x = startPoint.X + radius * cosAngle;
-        var y = startPoint.Y + radius * sinAngle;
-
-        return new Point((int)Math.Round(x), (int)Math.Round(y));
     }
 
     #region MVVM 
